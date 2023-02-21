@@ -1,6 +1,6 @@
 Package: ecic
 Title: Extended Changes-in-Changes
-Version: 0.0.2
+Version: 0.0.3
 Authors@R: 
     person("Frederic", "Kluser", , "frederic.kluser@unibe.ch", role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0000-0002-4454-7572"))
@@ -17,15 +17,15 @@ License: MIT + file LICENSE
 URL: https://frederickluser.github.io/ecic/
 BugReports: https://github.com/frederickluser/ecic/issues
 Depends: R (>= 2.10)
-Imports: furrr, future, ggplot2, patchwork, stats
+Imports: furrr, future, ggplot2, patchwork, progress, progressr, stats
 Suggests: tinytest
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.3
 NeedsCompilation: no
-Packaged: 2023-02-02 22:01:21 UTC; frkl
+Packaged: 2023-02-21 09:49:30 UTC; frkl
 Author: Frederic Kluser [aut, cre, cph]
     (<https://orcid.org/0000-0002-4454-7572>)
 Maintainer: Frederic Kluser <frederic.kluser@unibe.ch>
 Repository: CRAN
-Date/Publication: 2023-02-03 20:02:31 UTC
+Date/Publication: 2023-02-21 10:40:02 UTC

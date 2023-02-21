@@ -1,10 +1,11 @@
 
-# ecic: Extended Changes-in-Changes
+# Extended Changes-in-Changes (ECIC) <a href="https://frederickluser.github.io/ecic/"><img src="man/figures/logo.png" align="right" alt="" width = 155 /></a>
 
- <!-- badges: start -->
-   [![R-CMD-check](https://github.com/frederickluser/ecic/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/frederickluser/ecic/actions/workflows/R-CMD-check.yaml)
- [![Codecov test coverage](https://codecov.io/gh/frederickluser/ecic/branch/main/graph/badge.svg)](https://app.codecov.io/gh/frederickluser/ecic?branch=main)
- <!-- badges: end -->
+[![R-CMD-check](https://github.com/frederickluser/ecic/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/frederickluser/ecic/actions/workflows/R-CMD-check.yaml)
+[![CRAN version](https://www.r-pkg.org/badges/version/ecic)](https://CRAN.R-project.org/package=ecic)
+[![CRAN checks](https://badges.cranchecks.info/worst/ecic.svg)](https://cran.r-project.org/web/checks/check_results_ecic.html)
+[![CRAN downloads](https://cranlogs.r-pkg.org/badges/grand-total/ecic)](https://cran.r-project.org/package=ecic)
+[![Dependencies](https://tinyverse.netlify.com/badge/ecic)](https://CRAN.R-project.org/package=ecic)
 
 `ecic` estimates a changes-in-changes model with multiple periods and 
 cohorts as suggested in Athey and Imbens ([2006](https://scholar.harvard.edu/imbens/publications/identification-and-inference-nonlinear-difference-differences-models)).
@@ -12,14 +13,20 @@ Changes-in-changes is a generalization of the difference-in-differences approach
 a treatment effect for the entire distribution instead of averages.
 
 Athey and Imbens
-([2006](https://scholar.harvard.edu/imbens/publications/identification-and-inference-nonlinear-difference-differences-models)).
-show how to extend the model to multiple periods and cohorts, analogously to a Two-Way Fixed-Effects model for averages.
+([2006](https://scholar.harvard.edu/imbens/publications/identification-and-inference-nonlinear-difference-differences-models))
+show how to extend the model to multiple periods and cohorts, analogously to a two-way fixed-effects model for averages.
 This package implements this, 
 calculating standard errors via bootstrap and plotting results, aggregated or in an event-study-style fashion.
 
 ## Installation
 
-You can install `ecic` from GitHub.
+`ecic` is available on [CRAN](https://CRAN.R-project.org/package=ecic) using:
+``` r
+install.packages("ecic")
+```
+
+You can install the newest version from [GitHub](https://github.com/frederickluser/ecic):
+
 
 ``` r
 # install.packages("remotes")
@@ -59,11 +66,10 @@ mod =
     nReps = 10            # number of bootstrap runs
     )
 ```
-`mod`contains for every bootstrap run a list of all 2-by-2 combinations (`$name_runs`) and the point-estimates.
-`summary_ecic` combines this and adds standard errors:
+The input `gvar` denotes the period in which this individual receives the treatment. `mod` contains for every bootstrap run the point-estimates. The function `summary` then combines all bootstrap runs to a quantile treatment effect and adds standard errors:
 
 ``` r
-(mod_res = summary_ecic(mod) )
+mod_res = summary(mod) 
 
 #> perc    coefs         se
 #>  0.1 1.215531 0.02670761
@@ -79,9 +85,9 @@ mod =
 ```
 
 ### Plotting
-Finally, results can be plotted using `plot_ecic`.
+Finally, results can be plotted using `ecic_plot`.
 ``` r
-plot_ecic(mod_res)
+ecic_plot(mod_res)
 ```
 <p align="center"> 
  <img src="man/figures/plot_avg.png" width="100%" style="display: block; margin: auto;" />
@@ -89,7 +95,7 @@ plot_ecic(mod_res)
 
 ## Event-Study Example
 The package also allows to report _event-study-style_ results of the effect.
-To do so, simply add the `es = T` argument to the estimation and `summary_ecic` will report effects for every event period.
+To do so, simply add the `es = T` argument to the estimation and `summary` will report effects for every event period.
 ``` r
 # Estimate the model
 mod =
@@ -105,8 +111,7 @@ mod =
     )
 
 # report results for every event period
-(mod_res = summary_ecic(mod) )
-
+mod_res = summary(mod) 
 
 #> [[1]]
 #> perc es     coefs         se
@@ -135,9 +140,9 @@ mod =
 #> [...]
 ```
 ### Plotting
-Event-study results can be plotted for every period individually with the option `es_type = "for_periods"`.
+In addition to a standard plot showing everything at once, event-study results can be plotted for every period individually with the option `es_type = "for_periods"`.
 ``` r
-plot_ecic(
+ecic_plot(
     mod_res, 
     periods_plot = c(0, 2),   # which periods you want to show
     es_type = "for_periods",  # plots by period
@@ -151,7 +156,7 @@ plot_ecic(
 
 Alternatively, `es_type = "for_quantiles"` generates one plot for every quantile of interest.
 ``` r
-plot_ecic(
+ecic_plot(
     mod_res, 
     periods_plot = c(.1, .5, .9), # which quantiles you want to show
     es_type = "for_quantiles",    # plots by period
@@ -165,16 +170,22 @@ plot_ecic(
 ## Under the hood
 ### Estimation
 For every treated cohort, we observe the distribution of the potential outcome $Y(1)$. 
-In the case of two groups / cohorts and two periods, Athey and Imbens ([2006](https://scholar.harvard.edu/imbens/publications/identification-and-inference-nonlinear-difference-differences-models)).
+In the case of two groups / cohorts and two periods, Athey and Imbens ([2006](https://scholar.harvard.edu/imbens/publications/identification-and-inference-nonlinear-difference-differences-models))
 show how to construct the counterfactual $Y(0)$.
-This extends to the case with multiple cohorts and periods, where every not-yet-treated cohort is a valid comparison group.
+This extends to the case with multiple cohorts and periods, where every not-yet-treated cohort is a valid comparison group. Hence, every combination of treated and not-yet-treated cohorts with a common pre-treatment period estimates in theory the quantile treatment effect. Then, I simply want to average them.
 
-Since we cannot simply average Quantile Treatment Effects, we must first store the empirical CDF of $Y(1)$ and $Y(0)$ for every two-by-two case. Note that, therefore, we cannot estimate a quantile treatment effect for units treated in the first (no pre-treatment period) and last period (no comparison cohort) and have to skip small cohorts (default `nMin = 40`) as we need more observations to estimate quantile treatment effects compared to an average effect.
+Yet, since it is not allowed to simply average quantile treatment effects, we must first store the empirical CDF of $Y(1)$ and $Y(0)$ for every two-by-two case. Next, I aggregate all estimated CDFs to get the plug-in estimates of $Y(1)$ and $Y(0)$, weighting for the cohort sizes. Finally, I invert them to get the quantile function and compute the quantile treatment effect as in the standard case.
 
-### Aggregation
-Next, I aggregate all estimated CDFs to get the plug-in estimates of $Y(1)$ and $Y(0)$, weighting for the cohort sizes.
-Technically, `ecic` generates a grid of size `no_imp = 1e5` and imputes all empirical CDFs.
+Note that it is impossible to estimate a quantile treatment effect for units treated in the first (no pre-treatment period) and last period (no comparison cohort). In addition, the default value of `nMin` skips small cohorts (default `nMin = 40`) as we need more observations to estimate quantile treatment effects compared to an average effect.
+
+### Speed Improvements
+Technically, `ecic` generates a grid over the dependent variable and imputes all empirical CDFs for every unique value of `yvar`. You can (cautiously) speed up the imputation by rounding the dependent variable to `n_digits`.
 
 ### Bootstrap
-I calculate standard errors by bootstrap. I resample with replacement the entire dataset and estimate $Y(1)$ and $Y(0)$ `nRep` times (default `nReps = 100`).
-This part can be parallelized by setting `nCores > 1`.
+I calculate standard errors by bootstrap. I resample with replacement the entire dataset and estimate $Y(1)$ and $Y(0)$ `nRep` times (default `nReps = 1`). Bootstrap can either be computed through replacement over the entire dataset (with `boot = "normal"`) or you can weight by cohort sizes (with `boot = "weighted"`) if you worry, for example, about small cohorts.
+This part can be parallelized by setting `nCores > 1`, speeding up the computation at the cost of additional overhead to load the cores.
+
+`progress_bar` prints the progress of the bootstrapping by default. Alternatively, the option `progress_bar = "cli"` also shows estimated running time, but requires the `cli` package to be installed.
+
+### Next Steps for the package
+- [ ] Add covariates
