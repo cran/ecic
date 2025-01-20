@@ -1,6 +1,6 @@
 Package: ecic
 Title: Extended Changes-in-Changes
-Version: 0.0.3
+Version: 0.0.4
 Authors@R: 
     person("Frederic", "Kluser", , "frederic.kluser@unibe.ch", role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0000-0002-4454-7572"))
@@ -21,11 +21,11 @@ Imports: furrr, future, ggplot2, patchwork, progress, progressr, stats
 Suggests: tinytest
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 NeedsCompilation: no
-Packaged: 2023-02-21 09:49:30 UTC; frkl
+Packaged: 2025-01-20 11:18:57 UTC; frkl
 Author: Frederic Kluser [aut, cre, cph]
     (<https://orcid.org/0000-0002-4454-7572>)
 Maintainer: Frederic Kluser <frederic.kluser@unibe.ch>
 Repository: CRAN
-Date/Publication: 2023-02-21 10:40:02 UTC
+Date/Publication: 2025-01-20 11:30:29 UTC
